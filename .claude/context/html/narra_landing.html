@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Narra — The Revenue Retention Engine for Clinics</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f3ef;
+  --bg2: #edeae3;
+  --surface: #ffffff;
+  --surface2: #faf9f7;
+  --border: #e2ddd6;
+  --teal: #0e6b5e;
+  --teal-mid: #12877a;
+  --teal-light: #e6f3f1;
+  --teal-faint: #f0f8f7;
+  --gold: #c8943a;
+  --gold-light: #fdf5e8;
+  --ink: #1a1814;
+  --ink2: #3d3830;
+  --muted: #7a7469;
+  --muted2: #a09890;
+  --dark: #1a1814;
+  --dark2: #252118;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-full: 9999px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ═══════════════════════════════
+   NAV
+═══════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 68px;
+  display: flex; align-items: center;
+  padding: 0 48px;
+  transition: all 0.3s;
+}
+nav.scrolled {
+  background: rgba(245,243,239,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nav-logo-icon {
+  width: 34px; height: 34px; background: var(--teal); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo-icon svg { width: 17px; height: 17px; }
+.nav-logo-text { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); }
+
+.nav-links {
+  display: flex; align-items: center; gap: 6px;
+  margin-left: 40px; flex: 1;
+}
+.nav-link {
+  font-size: 14px; font-weight: 500; color: var(--muted);
+  padding: 7px 14px; border-radius: var(--radius-full);
+  cursor: pointer; transition: all 0.15s; text-decoration: none;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--ink); background: var(--bg2); }
+
+.nav-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.nav-signin {
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  padding: 8px 18px; border-radius: var(--radius-full);
+  cursor: pointer; transition: all 0.15s; background: transparent;
+  border: 1.5px solid var(--border);
+}
+.nav-signin:hover { background: var(--bg2); border-color: var(--ink2); }
+
+.nav-cta {
+  font-size: 14px; font-weight: 700; color: #fff;
+  padding: 9px 20px; border-radius: var(--radius-full);
+  cursor: pointer; transition: all 0.2s;
+  background: var(--teal);
+  box-shadow: 0 2px 8px rgba(14,107,94,0.3);
+  border: none;
+}
+.nav-cta:hover { background: var(--teal-mid); box-shadow: 0 4px 16px rgba(14,107,94,0.4); transform: translateY(-1px); }
+
+/* ═══════════════════════════════
+   HERO
+═══════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  background: var(--dark);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 24px 80px;
+  position: relative; overflow: hidden;
+  text-align: center;
+}
+
+/* Atmospheric mesh background */
+.hero-mesh {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 110%, rgba(14,107,94,0.28) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 85% 20%, rgba(200,148,58,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 30% at 15% 30%, rgba(14,107,94,0.1) 0%, transparent 60%);
+}
+
+/* Animated orbiting glow */
+.hero-orb {
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14,107,94,0.18) 0%, transparent 65%);
+  bottom: -200px; left: 50%; transform: translateX(-50%);
+  animation: pulse-orb 6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes pulse-orb {
+  0%,100% { transform: translateX(-50%) scale(1); opacity: 0.8; }
+  50%      { transform: translateX(-50%) scale(1.15); opacity: 1; }
+}
+
+/* Grid texture overlay */
+.hero-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(200,148,58,0.12);
+  border: 1px solid rgba(200,148,58,0.25);
+  padding: 6px 16px; border-radius: var(--radius-full);
+  margin-bottom: 28px;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  position: relative; z-index: 1;
+}
+.eyebrow-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(44px, 7vw, 84px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: #fff;
+  max-width: 900px;
+  margin-bottom: 24px;
+  position: relative; z-index: 1;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255,255,255,0.6);
+}
+
+.hero-title .teal-word {
+  position: relative; display: inline-block;
+  color: #fff;
+}
+.hero-title .teal-word::after {
+  content: '';
+  position: absolute; bottom: 4px; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal-mid), var(--gold));
+  border-radius: 2px;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2.5vw, 20px);
+  color: rgba(255,255,255,0.52);
+  max-width: 560px;
+  margin-bottom: 40px;
+  font-weight: 300;
+  line-height: 1.6;
+  position: relative; z-index: 1;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+}
+
+.hero-actions {
+  display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;
+  margin-bottom: 64px;
+  position: relative; z-index: 1;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+}
+
+.btn-hero-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 32px; border-radius: var(--radius-full);
+  background: var(--teal); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+  cursor: pointer; border: none; transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(14,107,94,0.4);
+}
+.btn-hero-primary:hover {
+  background: var(--teal-mid);
+  box-shadow: 0 6px 28px rgba(14,107,94,0.55);
+  transform: translateY(-2px);
+}
+
+.btn-hero-ghost {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 15px 32px; border-radius: var(--radius-full);
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.8);
+  font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-hero-ghost:hover { background: rgba(255,255,255,0.12); color: #fff; border-color: rgba(255,255,255,0.3); }
+
+/* Stats ticker */
+.hero-stats {
+  display: flex; gap: 0; flex-wrap: wrap; justify-content: center;
+  position: relative; z-index: 1;
+  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+}
+.hero-stat {
+  padding: 20px 36px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  transition: background 0.2s;
+}
+.hero-stat:last-child { border-right: none; }
+.hero-stat:hover { background: rgba(255,255,255,0.07); }
+
+.stat-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px; color: #fff; line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-val span { color: var(--teal-mid); }
+.stat-lbl { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 400; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Scroll hint */
+.scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25); z-index: 1;
+  animation: fadeUp 1s 0.8s both;
+}
+.scroll-arrow {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+  animation: arrow-drop 2s ease-in-out infinite;
+}
+@keyframes arrow-drop { 0%,100%{transform:scaleY(1);opacity:0.6} 50%{transform:scaleY(0.7);opacity:1} }
+
+/* ═══════════════════════════════
+   LOGO BAR
+═══════════════════════════════ */
+.logo-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 28px 48px;
+  overflow: hidden;
+}
+.logo-bar-inner {
+  display: flex; align-items: center; gap: 16px;
+  justify-content: center;
+}
+.logo-bar-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted2); white-space: nowrap; flex-shrink: 0;
+  margin-right: 8px;
+}
+.logo-bar-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+.logo-pills { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.logo-pill {
+  padding: 7px 18px; border: 1px solid var(--border); border-radius: var(--radius-full);
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  background: var(--surface); transition: all 0.15s;
+}
+.logo-pill:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ═══════════════════════════════
+   SECTION COMMON
+═══════════════════════════════ */
+.section { padding: 100px 48px; }
+.section-sm { padding: 72px 48px; }
+.container { max-width: 1120px; margin: 0 auto; }
+
+.eyebrow-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--teal); background: var(--teal-faint);
+  border: 1px solid rgba(14,107,94,0.2);
+  padding: 5px 14px; border-radius: var(--radius-full);
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(34px, 5vw, 52px);
+  line-height: 1.1; letter-spacing: -0.02em;
+  color: var(--ink); margin-bottom: 18px;
+}
+.section-title em { font-style: italic; color: var(--teal); }
+
+.section-sub {
+  font-size: 18px; color: var(--muted); font-weight: 300;
+  line-height: 1.6; max-width: 560px;
+}
+
+/* ═══════════════════════════════
+   PROBLEM SECTION
+═══════════════════════════════ */
+.problem-section {
+  background: var(--bg);
+  padding: 100px 48px;
+}
+.problem-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin-top: 52px;
+}
+.problem-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s;
+}
+.problem-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.problem-card.big { grid-column: span 2; display: flex; gap: 40px; align-items: center; }
+
+.problem-icon { font-size: 32px; margin-bottom: 16px; }
+.problem-title { font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+.problem-desc  { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+.problem-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 72px; line-height: 1;
+  color: var(--ink); flex-shrink: 0;
+}
+.problem-number span { color: var(--teal); }
+
+/* ═══════════════════════════════
+   HOW IT WORKS — DEMO WINDOW
+═══════════════════════════════ */
+.how-section {
+  background: var(--dark);
+  padding: 100px 48px;
+  position: relative; overflow: hidden;
+}
+.how-section::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(14,107,94,0.5), transparent);
+}
+
+.how-header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+.how-header .section-title { color: #fff; }
+.how-header .section-sub { color: rgba(255,255,255,0.45); margin: 0 auto; }
+
+.how-tabs {
+  display: flex; gap: 0;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  margin-bottom: 40px;
+  width: fit-content; margin: 0 auto 40px;
+}
+.how-tab {
+  font-size: 13px; font-weight: 600;
+  padding: 9px 20px; border-radius: 5px;
+  cursor: pointer; transition: all 0.2s;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+}
+.how-tab.active {
+  background: var(--teal); color: #fff;
+  box-shadow: 0 2px 8px rgba(14,107,94,0.4);
+}
+.how-tab:hover:not(.active) { color: rgba(255,255,255,0.75); }
+
+/* Chat demo window */
+.chat-window {
+  background: var(--surface);
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  overflow: hidden;
+  max-width: 780px; margin: 0 auto;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.chat-topbar {
+  background: #1e1c18; padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.chat-dots { display: flex; gap: 6px; }
+.chat-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cd-r { background: #ff5f57; }
+.cd-y { background: #febc2e; }
+.cd-g { background: #28c840; }
+.chat-app-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); margin-left: 8px; }
+.chat-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: #3bcb8a; font-weight: 600; }
+.chat-status-dot { width: 6px; height: 6px; background: #3bcb8a; border-radius: 50%; animation: blink 2s infinite; }
+
+.chat-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; min-height: 340px; background: var(--bg); }
+
+.chat-msg { display: flex; gap: 10px; max-width: 80%; }
+.chat-msg.patient { flex-direction: row-reverse; margin-left: auto; }
+.chat-msg.narra { flex-direction: row; }
+
+.chat-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; margin-top: 2px;
+}
+.av-narra { background: var(--teal); }
+.av-patient { background: linear-gradient(135deg, #6b7de8, #9b6be8); }
+
+.chat-bubble {
+  padding: 11px 15px; border-radius: 16px;
+  font-size: 14px; line-height: 1.5;
+}
+.chat-msg.narra .chat-bubble {
+  background: var(--surface); border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color: var(--ink);
+}
+.chat-msg.patient .chat-bubble {
+  background: linear-gradient(135deg, #6b7de8, #9b6be8);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-time { font-size: 10px; color: var(--muted2); margin-top: 4px; text-align: center; }
+.chat-typing { display: flex; gap: 4px; align-items: center; padding: 11px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; }
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); animation: tdot 1.4s ease infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes tdot { 0%,80%,100%{transform:scale(0.8);opacity:0.5} 40%{transform:scale(1.1);opacity:1} }
+
+/* Tabs content */
+.how-panel { display: none; }
+.how-panel.active { display: block; }
+
+/* ═══════════════════════════════
+   FEATURES BENTO
+═══════════════════════════════ */
+.features-section {
+  background: var(--bg);
+  padding: 100px 48px;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto;
+  gap: 14px;
+  margin-top: 52px;
+}
+
+.bento-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  transition: all 0.25s;
+  overflow: hidden;
+  position: relative;
+}
+.bento-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+/* Grid placement */
+.bento-1 { grid-column: span 5; }
+.bento-2 { grid-column: span 7; }
+.bento-3 { grid-column: span 4; }
+.bento-4 { grid-column: span 4; }
+.bento-5 { grid-column: span 4; }
+.bento-6 { grid-column: span 7; }
+.bento-7 { grid-column: span 5; }
+
+.bento-card.dark {
+  background: var(--dark); border-color: rgba(255,255,255,0.08);
+}
+.bento-card.teal {
+  background: var(--teal); border-color: var(--teal-mid);
+}
+
+.bento-icon { font-size: 28px; margin-bottom: 18px; }
+.bento-tag {
+  display: inline-flex; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--teal); background: var(--teal-faint);
+  border: 1px solid rgba(14,107,94,0.2);
+  padding: 3px 10px; border-radius: var(--radius-full);
+  margin-bottom: 14px;
+}
+.bento-card.dark .bento-tag { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.1); }
+.bento-card.teal .bento-tag { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); }
+
+.bento-title {
+  font-size: 20px; font-weight: 700; line-height: 1.3;
+  color: var(--ink); margin-bottom: 10px;
+}
+.bento-card.dark .bento-title { color: #fff; }
+.bento-card.teal .bento-title { color: #fff; }
+
+.bento-desc {
+  font-size: 14px; color: var(--muted); line-height: 1.6;
+}
+.bento-card.dark .bento-desc { color: rgba(255,255,255,0.45); }
+.bento-card.teal .bento-desc { color: rgba(255,255,255,0.7); }
+
+/* Mini UI snippets inside bento cards */
+.mini-chat { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+.mini-bubble {
+  padding: 8px 12px; border-radius: 10px;
+  font-size: 12px; line-height: 1.4; max-width: 85%;
+}
+.mb-in  { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.mb-out { background: var(--teal-mid); color: #fff; margin-left: auto; }
+
+.mini-bar-chart { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+.mbc-row { display: flex; align-items: center; gap: 10px; }
+.mbc-lbl { font-size: 11px; color: var(--muted); width: 60px; text-align: right; flex-shrink: 0; }
+.mbc-track { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; overflow: hidden; }
+.mbc-fill { height: 100%; border-radius: 3px; background: var(--teal); transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+.mbc-val { font-size: 11px; font-weight: 700; color: var(--ink); width: 32px; }
+
+.channel-icons { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.ch-icon {
+  width: 44px; height: 44px; border-radius: 11px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; transition: transform 0.2s;
+}
+.ch-icon:hover { transform: scale(1.1); }
+
+.timeline-flow { display: flex; flex-direction: column; gap: 0; margin-top: 20px; }
+.tl-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 10px 0;
+}
+.tl-dot-wrap { display: flex; flex-direction: column; align-items: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--teal-mid); flex-shrink: 0; margin-top: 4px; }
+.tl-line { width: 1px; flex: 1; background: rgba(255,255,255,0.1); min-height: 20px; }
+.tl-item:last-child .tl-line { display: none; }
+.tl-content { font-size: 12px; color: rgba(255,255,255,0.55); }
+.tl-content strong { color: rgba(255,255,255,0.85); display: block; font-size: 13px; margin-bottom: 2px; }
+
+/* ═══════════════════════════════
+   INDUSTRIES SECTION
+═══════════════════════════════ */
+.industries-section { background: var(--surface); padding: 100px 48px; }
+
+.industry-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-top: 52px;
+}
+
+.industry-card {
+  padding: 28px 24px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.25s; cursor: default;
+  position: relative; overflow: hidden;
+}
+.industry-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--teal); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.industry-card:hover::before { transform: scaleX(1); }
+.industry-card:hover { border-color: rgba(14,107,94,0.25); box-shadow: var(--shadow-md); transform: translateY(-4px); }
+
+.industry-card.featured { border-color: var(--teal); background: var(--teal-faint); }
+.industry-card.featured::before { transform: scaleX(1); }
+
+.ind-icon { font-size: 36px; margin-bottom: 14px; }
+.ind-name { font-size: 17px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.ind-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.ind-badge {
+  display: inline-flex; margin-top: 12px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--teal); background: rgba(14,107,94,0.12);
+  padding: 3px 10px; border-radius: var(--radius-full);
+}
+
+/* ═══════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════ */
+.testimonials-section { background: var(--bg); padding: 100px 48px; }
+
+.test-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 52px;
+}
+
+.test-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  box-shadow: var(--shadow); transition: all 0.25s;
+}
+.test-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.test-card.featured { background: var(--dark); border-color: rgba(255,255,255,0.1); }
+
+.test-stars { display: flex; gap: 3px; margin-bottom: 16px; }
+.test-star { color: var(--gold); font-size: 14px; }
+
+.test-quote {
+  font-size: 15px; line-height: 1.7; color: var(--ink);
+  margin-bottom: 24px; font-style: italic;
+}
+.test-card.featured .test-quote { color: rgba(255,255,255,0.85); }
+
+.test-author { display: flex; align-items: center; gap: 12px; }
+.test-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.test-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+.test-card.featured .test-name { color: #fff; }
+.test-clinic { font-size: 12px; color: var(--muted); }
+.test-card.featured .test-clinic { color: rgba(255,255,255,0.4); }
+
+/* ═══════════════════════════════
+   PRICING
+═══════════════════════════════ */
+.pricing-section { background: var(--surface); padding: 100px 48px; }
+
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 52px; align-items: start;
+}
+
+.price-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 36px 32px;
+  transition: all 0.25s; background: var(--surface);
+  position: relative;
+}
+.price-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.price-card.featured {
+  background: var(--dark);
+  border-color: rgba(255,255,255,0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+}
+.price-card.featured:hover { transform: translateY(-12px); }
+
+.price-badge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  background: var(--gold); color: #fff;
+  padding: 4px 14px; border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.price-tier { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+.price-card.featured .price-tier { color: rgba(255,255,255,0.4); }
+
+.price-amount { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+.price-currency { font-size: 20px; font-weight: 700; color: var(--muted); margin-top: 8px; }
+.price-num { font-family: 'DM Serif Display', serif; font-size: 56px; line-height: 1; color: var(--ink); }
+.price-card.featured .price-currency { color: rgba(255,255,255,0.5); }
+.price-card.featured .price-num { color: #fff; }
+.price-period { font-size: 14px; color: var(--muted); }
+
+.price-desc { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+.price-card.featured .price-desc { color: rgba(255,255,255,0.5); }
+
+.price-features { list-style: none; margin-bottom: 32px; }
+.price-features li {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14px; color: var(--ink2); padding: 7px 0;
+  border-bottom: 1px solid var(--border); line-height: 1.4;
+}
+.price-card.featured .price-features li { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.07); }
+.price-features li:last-child { border-bottom: none; }
+.feat-yes { color: var(--teal); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.feat-no  { color: var(--muted2); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.price-card.featured .feat-yes { color: var(--teal-mid); }
+
+.price-cta {
+  width: 100%; padding: 13px;
+  border: none; border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+}
+.cta-outline { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+.cta-outline:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-faint); }
+.cta-fill { background: var(--teal); color: #fff; box-shadow: 0 2px 10px rgba(14,107,94,0.35); }
+.cta-fill:hover { background: var(--teal-mid); box-shadow: 0 4px 18px rgba(14,107,94,0.45); }
+
+.pricing-note {
+  text-align: center; margin-top: 32px;
+  font-size: 13px; color: var(--muted);
+}
+
+/* ═══════════════════════════════
+   CTA SECTION
+═══════════════════════════════ */
+.cta-section {
+  background: var(--dark);
+  padding: 120px 48px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 60% at 50% 100%, rgba(14,107,94,0.3), transparent 65%);
+  pointer-events: none;
+}
+.cta-section .section-title { color: #fff; position: relative; z-index: 1; margin: 0 auto 20px; }
+.cta-section .section-sub { color: rgba(255,255,255,0.45); margin: 0 auto 40px; position: relative; z-index: 1; }
+.cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+.cta-fine {
+  margin-top: 24px; font-size: 13px; color: rgba(255,255,255,0.3);
+  position: relative; z-index: 1;
+}
+
+/* ═══════════════════════════════
+   FOOTER
+═══════════════════════════════ */
+footer {
+  background: #111009;
+  padding: 64px 48px 36px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px; margin-bottom: 48px;
+}
+.footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.footer-logo-icon { width: 30px; height: 30px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.footer-logo-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: #fff; }
+.footer-desc { font-size: 13px; color: rgba(255,255,255,0.35); line-height: 1.7; max-width: 280px; }
+.footer-col-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.footer-links a { font-size: 13px; color: rgba(255,255,255,0.45); text-decoration: none; transition: color 0.15s; cursor: pointer; }
+.footer-links a:hover { color: rgba(255,255,255,0.8); }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-copy { font-size: 12px; color: rgba(255,255,255,0.2); }
+.footer-badges { display: flex; gap: 10px; }
+.footer-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 4px;
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.35);
+}
+
+/* ═══════════════════════════════
+   RESPONSIVE
+═══════════════════════════════ */
+@media (max-width: 1024px) {
+  .problem-grid { grid-template-columns: 1fr 1fr; }
+  .problem-card.big { grid-column: span 2; flex-direction: column; gap: 20px; }
+  .bento-1, .bento-7 { grid-column: span 6; }
+  .bento-2, .bento-6 { grid-column: span 6; }
+  .bento-3, .bento-4, .bento-5 { grid-column: span 4; }
+  .industry-grid { grid-template-columns: repeat(2, 1fr); }
+  .test-grid { grid-template-columns: 1fr 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .price-card.featured { transform: none; }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .section, .problem-section, .how-section, .features-section, .industries-section, .testimonials-section, .pricing-section, .cta-section { padding: 72px 20px; }
+  .hero { padding: 100px 20px 60px; }
+  .problem-grid { grid-template-columns: 1fr; }
+  .problem-card.big { grid-column: span 1; }
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-1,.bento-2,.bento-3,.bento-4,.bento-5,.bento-6,.bento-7 { grid-column: span 1; }
+  .industry-grid { grid-template-columns: 1fr 1fr; }
+  .test-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: column; }
+  .hero-stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .hero-stat:last-child { border-bottom: none; }
+  .footer-top { grid-template-columns: 1fr; }
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════ -->
+<nav id="main-nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+        <path d="M12 2C8 2 5 5 5 8c0 4 3 6 4 10h6c1-4 4-6 4-10 0-3-3-6-7-6z"/>
+        <line x1="9" y1="18" x2="15" y2="18"/>
+        <line x1="10" y1="21" x2="14" y2="21"/>
+      </svg>
+    </div>
+    <div class="nav-logo-text">Narra</div>
+  </a>
+
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#industries">Industries</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#testimonials">Stories</a>
+  </div>
+
+  <div class="nav-actions">
+    <button class="nav-signin">Sign in</button>
+    <button class="nav-cta">Start free trial →</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-mesh"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-orb"></div>
+
+  <div class="hero-eyebrow">
+    <div class="eyebrow-dot"></div>
+    AI-Powered Revenue Retention Engine
+  </div>
+
+  <h1 class="hero-title">
+    Your patients leave.<br>
+    <span class="teal-word">Narra brings</span> them back.
+  </h1>
+
+  <p class="hero-sub">
+    The AI front desk that works 24/7 — booking, reminding, and reactivating patients
+    while your clinic sleeps. Built for Philippine clinics. Speaks Taglish.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-hero-primary">
+      Start 30-day free trial
+      <span>→</span>
+    </button>
+    <button class="btn-hero-ghost">
+      Watch 2-min demo
+      <span>▶</span>
+    </button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="stat-val">68<span>%</span></div>
+      <div class="stat-lbl">Of patients book after 8PM</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val">₱<span>4.2K</span></div>
+      <div class="stat-lbl">Avg revenue per reactivated patient</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val">3<span>min</span></div>
+      <div class="stat-lbl">To set up Narra for your clinic</div>
+    </div>
+    <div class="hero-stat">
+      <div class="stat-val">24<span>/7</span></div>
+      <div class="stat-lbl">AI front desk, never sleeps</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-arrow"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ══ LOGO BAR ══════════════════════════════════════ -->
+<div class="logo-bar">
+  <div class="logo-bar-inner">
+    <span class="logo-bar-label">Works with</span>
+    <div class="logo-bar-divider"></div>
+    <div class="logo-pills">
+      <div class="logo-pill">💬 Messenger</div>
+      <div class="logo-pill">📱 SMS</div>
+      <div class="logo-pill">💚 WhatsApp</div>
+      <div class="logo-pill">📧 Email</div>
+      <div class="logo-pill">📞 Voice (beta)</div>
+      <div class="logo-pill">🔗 Meta Cloud API</div>
+      <div class="logo-pill">📲 Semaphore</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROBLEM ══════════════════════════════════════ -->
+<section class="problem-section" id="problem">
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow-tag">The problem</div>
+      <h2 class="section-title">Revenue is slipping through<br><em>the cracks you can't see</em></h2>
+      <p class="section-sub">Patients don't stop caring about their teeth. They just stop hearing from you.</p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card reveal reveal-delay-1">
+        <div class="problem-icon">🌙</div>
+        <div class="problem-title">Inquiries arrive at 11PM</div>
+        <div class="problem-desc">Your receptionist is asleep. Your Facebook page has 14 unread messages. Those are bookings that went to the clinic down the street.</div>
+      </div>
+
+      <div class="problem-card reveal reveal-delay-2">
+        <div class="problem-icon">🗓</div>
+        <div class="problem-title">No-shows eat your schedule</div>
+        <div class="problem-desc">A ₱2,000 cleaning that doesn't show up is ₱2,000 gone. Manual reminder calls take 45 minutes of your receptionist's day — every single day.</div>
+      </div>
+
+      <div class="problem-card big reveal">
+        <div class="problem-number">73<span>%</span></div>
+        <div>
+          <div class="problem-title">of patients who don't return within 12 months never come back.</div>
+          <div class="problem-desc">Not because they found a better clinic. Because nobody asked them to. The average Philippine dental clinic loses ₱180,000–₱340,000 in lapsed patient revenue per year — not from losing patients, but from forgetting to follow up. Narra is the follow-up that never forgets.</div>
+        </div>
+      </div>
+
+      <div class="problem-card reveal reveal-delay-1">
+        <div class="problem-icon">📞</div>
+        <div class="problem-title">Manual follow-up doesn't scale</div>
+        <div class="problem-desc">Your receptionist is amazing. But calling 80 patients about their overdue cleaning is not a good use of her Tuesday afternoon.</div>
+      </div>
+
+      <div class="problem-card reveal reveal-delay-2">
+        <div class="problem-icon">💸</div>
+        <div class="problem-title">Acquiring new patients is expensive</div>
+        <div class="problem-desc">You're spending on ads to bring in new faces while your existing patients drift quietly away. Retention costs 5× less than acquisition.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══════════════════════════════════ -->
+<section class="how-section" id="how">
+  <div class="container">
+    <div class="how-header">
+      <div class="eyebrow-tag" style="color:var(--gold);background:rgba(200,148,58,0.1);border-color:rgba(200,148,58,0.2);margin-bottom:18px">See it in action</div>
+      <h2 class="section-title reveal" style="color:#fff">What Narra sounds like<br><em style="color:var(--teal-mid)">inside your clinic's chat</em></h2>
+      <p class="section-sub reveal" style="color:rgba(255,255,255,0.45)">Patients message in Taglish. Narra replies in Taglish. Indistinguishable from a real receptionist — except it's available at 2AM.</p>
+    </div>
+
+    <div class="how-tabs reveal">
+      <div class="how-tab active" onclick="switchTab(0)">After-hours booking</div>
+      <div class="how-tab" onclick="switchTab(1)">Recall campaign</div>
+      <div class="how-tab" onclick="switchTab(2)">No-show follow-up</div>
+    </div>
+
+    <!-- Tab 0: After-hours booking -->
+    <div class="how-panel active" id="panel-0">
+      <div class="chat-window reveal">
+        <div class="chat-topbar">
+          <div class="chat-dots">
+            <div class="chat-dot cd-r"></div>
+            <div class="chat-dot cd-y"></div>
+            <div class="chat-dot cd-g"></div>
+          </div>
+          <div class="chat-app-name">SmileMakers Dental · Facebook Messenger</div>
+          <div class="chat-status">
+            <div class="chat-status-dot"></div>
+            Narra AI active
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-time">11:47 PM</div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">MG</div>
+            <div class="chat-bubble">
+              Hello po, may bakante pa ba kayo bukas ng hapon? Gusto ko mag-pa-check-up 😊
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Hello po! 👋 Nandito pa kami kahit gabi haha! May available pa po kami bukas ng hapon — may 2:00 PM at 3:30 PM pa. Alin po ang mas convenient sa inyo?
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">MG</div>
+            <div class="chat-bubble">
+              Yung 2pm sige 🙏
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Naka-book na po kayo! 🎉<br><br>
+              📅 <strong>Bukas, 2:00 PM</strong><br>
+              🏥 SmileMakers Dental, Mabalacat<br>
+              👨‍⚕️ Dr. Ramon Santos<br><br>
+              Padadalhan ko po kayo ng reminder bukas ng 9AM. May itatanong pa po ba kayo? 😊
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">MG</div>
+            <div class="chat-bubble">
+              Salamat! Wala na 😊
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Sige po! Hanggang bukas na lang. Ingat kayo! 🦷
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 1: Recall campaign -->
+    <div class="how-panel" id="panel-1">
+      <div class="chat-window reveal">
+        <div class="chat-topbar">
+          <div class="chat-dots">
+            <div class="chat-dot cd-r"></div>
+            <div class="chat-dot cd-y"></div>
+            <div class="chat-dot cd-g"></div>
+          </div>
+          <div class="chat-app-name">SmileMakers Dental · SMS (via Semaphore)</div>
+          <div class="chat-status">
+            <div class="chat-status-dot"></div>
+            Recall campaign active
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-time">Narra recall engine triggered · 9:00 AM · Patient last visit: 8 months ago</div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Hello po Ms. Ana! 😊 Si SmileMakers Dental ito. 8 buwan na po since nung last cleaning ninyo — baka oras na para sa next checkup? May available pa kami ngayong linggo. Reply "BOOK" para mag-schedule, o "LATER" kung busy muna kayo. 🦷
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">AC</div>
+            <div class="chat-bubble">
+              BOOK
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Sige po! Anong araw po kayo available this week? May bukang-liwayway pa kami (8AM–12PM) at hapon (2PM–6PM) na slots. 😊
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">AC</div>
+            <div class="chat-bubble">
+              Thursday hapon please
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              ✅ Naka-confirm na po! Thursday, 3:00 PM kay Dr. Santos. Padadalhan po namin kayo ng reminder ng Huwebes ng umaga. See you po! 🙂
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: No-show follow-up -->
+    <div class="how-panel" id="panel-2">
+      <div class="chat-window reveal">
+        <div class="chat-topbar">
+          <div class="chat-dots">
+            <div class="chat-dot cd-r"></div>
+            <div class="chat-dot cd-y"></div>
+            <div class="chat-dot cd-g"></div>
+          </div>
+          <div class="chat-app-name">SmileMakers Dental · Messenger</div>
+          <div class="chat-status">
+            <div class="chat-status-dot"></div>
+            No-show recovery
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="chat-time">Patient missed 10AM appointment · Narra triggered at 11:30AM</div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Hello po! 👋 Nag-worry lang kami kasi hindi kayo nakarating ngayong umaga — okay lang po ba kayo? Kung may nangyari o may conflict, pwede po kayong mag-reschedule kahit kailan. Sabihin lang po! 😊
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">JP</div>
+            <div class="chat-bubble">
+              Sorry nag-traffic ako kanina 😅 pwede ba next week na lang?
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              Ay ganun po, sige lang! Nandito kami. May Monday pa kami ng 10AM at 2PM, at Wednesday ng 3PM. Alin po ang ok sa inyo? 😊
+            </div>
+          </div>
+
+          <div class="chat-msg patient">
+            <div class="chat-av av-patient">JP</div>
+            <div class="chat-bubble">
+              Monday 10am please
+            </div>
+          </div>
+
+          <div class="chat-msg narra">
+            <div class="chat-av av-narra">N</div>
+            <div class="chat-bubble">
+              ✅ Ayos! Naka-reschedule na kayo sa Monday ng 10AM. Padadalhan po namin kayo ng reminder sa Sunday evening para hindi malimutan. Ingat po! 🦷
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══════════════════════════════════════ -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow-tag">What's inside</div>
+      <h2 class="section-title">Everything your clinic needs<br><em>to never miss a patient again</em></h2>
+    </div>
+
+    <div class="bento-grid">
+
+      <div class="bento-card dark bento-1 reveal">
+        <div class="bento-tag">🤖 AI Receptionist</div>
+        <div class="bento-title">Answers patients at 2AM</div>
+        <div class="bento-desc">Books appointments, answers common questions, and hands off to you when it needs to — all in natural Taglish.</div>
+        <div class="mini-chat">
+          <div class="mini-bubble mb-in">May slot ba bukas ng hapon?</div>
+          <div class="mini-bubble mb-out">Meron po! May 2PM at 4PM 😊</div>
+          <div class="mini-bubble mb-in">Yung 2pm sige</div>
+          <div class="mini-bubble mb-out">Naka-book na po kayo! 🎉</div>
+        </div>
+      </div>
+
+      <div class="bento-card bento-2 reveal reveal-delay-1">
+        <div class="bento-tag">📊 Recall Engine</div>
+        <div class="bento-title">Automatically finds patients who are due</div>
+        <div class="bento-desc">Narra tracks every patient's last visit date and triggers personalized outreach when they're overdue for cleaning, check-up, or treatment follow-up. No spreadsheet. No manual calls.</div>
+        <div class="mini-bar-chart">
+          <div class="mbc-row">
+            <div class="mbc-lbl">0–3 mo</div>
+            <div class="mbc-track"><div class="mbc-fill" style="width:92%"></div></div>
+            <div class="mbc-val">92%</div>
+          </div>
+          <div class="mbc-row">
+            <div class="mbc-lbl">3–6 mo</div>
+            <div class="mbc-track"><div class="mbc-fill" style="width:71%"></div></div>
+            <div class="mbc-val">71%</div>
+          </div>
+          <div class="mbc-row">
+            <div class="mbc-lbl">6–12 mo</div>
+            <div class="mbc-track"><div class="mbc-fill" style="width:54%;background:var(--gold)"></div></div>
+            <div class="mbc-val" style="color:var(--gold)">54%</div>
+          </div>
+          <div class="mbc-row">
+            <div class="mbc-lbl">12+ mo</div>
+            <div class="mbc-track"><div class="mbc-fill" style="width:38%;background:#c0392b"></div></div>
+            <div class="mbc-val" style="color:#c0392b">38%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-card teal bento-3 reveal">
+        <div class="bento-tag">⚡ Instant Setup</div>
+        <div class="bento-title">Live in under 3 minutes</div>
+        <div class="bento-desc">Connect your Facebook page. Enter your schedule. Narra is on. No IT team needed.</div>
+      </div>
+
+      <div class="bento-card bento-4 reveal reveal-delay-1">
+        <div class="bento-tag">🔔 Smart Reminders</div>
+        <div class="bento-title">No-shows cut in half</div>
+        <div class="bento-desc">Automated reminder sequences via SMS and Messenger — 24hrs before, 2hrs before. Patients reply to confirm, cancel, or reschedule.</div>
+      </div>
+
+      <div class="bento-card dark bento-5 reveal reveal-delay-2">
+        <div class="bento-tag">🌐 Multi-channel</div>
+        <div class="bento-title">Everywhere your patients are</div>
+        <div class="bento-desc">One inbox. All channels.</div>
+        <div class="channel-icons">
+          <div class="ch-icon">💬</div>
+          <div class="ch-icon">📱</div>
+          <div class="ch-icon">💚</div>
+          <div class="ch-icon">📧</div>
+          <div class="ch-icon">📞</div>
+        </div>
+      </div>
+
+      <div class="bento-card dark bento-6 reveal">
+        <div class="bento-tag">🔄 Human Handoff</div>
+        <div class="bento-title">Narra knows when to step aside</div>
+        <div class="bento-desc">Anytime a patient asks a clinical question, shows frustration, or says "speak to a person" — Narra flags it and hands off to your team instantly. You stay in control of everything that matters.</div>
+        <div class="timeline-flow">
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><strong>Patient asks about root canal cost</strong>Clinical question detected → escalation triggered</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--gold)"></div><div class="tl-line"></div></div>
+            <div class="tl-content"><strong>Narra notifies receptionist</strong>Push notification sent to clinic staff</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-wrap"><div class="tl-dot" style="background:#27a06a"></div></div>
+            <div class="tl-content"><strong>Receptionist takes over</strong>Smooth transition, patient never knows the difference</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bento-card bento-7 reveal reveal-delay-1">
+        <div class="bento-tag">📈 Revenue Dashboard</div>
+        <div class="bento-title">See exactly what Narra recovered</div>
+        <div class="bento-desc">Know how many appointments Narra booked, how many no-shows it prevented, and how much revenue it recovered this month — down to the peso.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ INDUSTRIES ══════════════════════════════════ -->
+<section class="industries-section" id="industries">
+  <div class="container">
+    <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto">
+      <div class="eyebrow-tag">Built for retention-first businesses</div>
+      <h2 class="section-title">If patients come back,<br><em>Narra works for you</em></h2>
+      <p class="section-sub" style="margin:0 auto">We started with dental. We're built for any appointment-based business where the relationship matters more than the transaction.</p>
+    </div>
+
+    <div class="industry-grid">
+      <div class="industry-card featured reveal">
+        <div class="ind-icon">🦷</div>
+        <div class="ind-name">Dental Clinics</div>
+        <div class="ind-desc">Regular cleaning cycles, recall campaigns, and after-hours booking. Our first market and our deepest expertise.</div>
+        <div class="ind-badge">Primary Market</div>
+      </div>
+      <div class="industry-card reveal reveal-delay-1">
+        <div class="ind-icon">💆</div>
+        <div class="ind-name">Aesthetic Clinics</div>
+        <div class="ind-desc">Follow-up on Botox, facials, laser sessions. High-value patients with regular treatment cycles — perfect for recall.</div>
+      </div>
+      <div class="industry-card reveal reveal-delay-2">
+        <div class="ind-icon">🐾</div>
+        <div class="ind-name">Veterinary Clinics</div>
+        <div class="ind-desc">Pet vaccination reminders, annual check-up recalls. Owners are emotionally invested — they respond to thoughtful follow-up.</div>
+      </div>
+      <div class="industry-card reveal reveal-delay-3">
+        <div class="ind-icon">🧘</div>
+        <div class="ind-name">Wellness & Spa</div>
+        <div class="ind-desc">Massage, physio, and chiropractic clinics. High repeat-visit potential, often underserved by technology.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIALS ══════════════════════════════════ -->
+<section class="testimonials-section" id="testimonials">
+  <div class="container">
+    <div class="reveal">
+      <div class="eyebrow-tag">Early adopters</div>
+      <h2 class="section-title">What clinic owners are<br><em>already saying</em></h2>
+    </div>
+
+    <div class="test-grid">
+
+      <div class="test-card featured reveal">
+        <div class="test-stars">
+          <span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span>
+        </div>
+        <div class="test-quote">"Natutulog na kami ng mag-asawa — tapos kinaumagahan may 3 new bookings na pala. I didn't believe it would work until I saw the message thread."</div>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,var(--teal),var(--teal-mid))">RS</div>
+          <div>
+            <div class="test-name">Dr. Ramon Santos</div>
+            <div class="test-clinic">SmileMakers Dental · Mabalacat, Pampanga</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal reveal-delay-1">
+        <div class="test-stars">
+          <span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span>
+        </div>
+        <div class="test-quote">"Ang daming patients na hindi ko alam na bumabalik dahil lang sa follow-up message ng Narra. We recovered at least ₱60,000 worth of lapsed patients in the first two months."</div>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,var(--gold),#e0a84a)">ML</div>
+          <div>
+            <div class="test-name">Dr. Maricel Lim</div>
+            <div class="test-clinic">BrightSmile Clinic · Angeles City</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="test-card reveal reveal-delay-2">
+        <div class="test-stars">
+          <span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span><span class="test-star">★</span>
+        </div>
+        <div class="test-quote">"Our receptionist used to spend 2 hours every Monday just calling patients for reminders. That time is now freed up completely. She handles actual patient care now."</div>
+        <div class="test-author">
+          <div class="test-av" style="background:linear-gradient(135deg,#4a7edc,#6b5ce7)">JC</div>
+          <div>
+            <div class="test-name">Dr. Jose Cruz</div>
+            <div class="test-clinic">Total Dental Care · San Fernando, Pampanga</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══════════════════════════════════════ -->
+<section class="pricing-section" id="pricing">
+  <div class="container">
+    <div class="reveal" style="text-align:center; max-width:540px; margin:0 auto">
+      <div class="eyebrow-tag">Pricing</div>
+      <h2 class="section-title">One clinic.<br><em>One flat price.</em></h2>
+      <p class="section-sub" style="margin:0 auto; font-size:16px">No per-user fees. No setup costs. Unlimited staff accounts on every plan. Cancel anytime.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <div class="price-card reveal">
+        <div class="price-tier">Starter</div>
+        <div class="price-amount">
+          <div class="price-currency">₱</div>
+          <div class="price-num">2,500</div>
+        </div>
+        <div class="price-period" style="margin-bottom:16px;color:var(--muted);font-size:14px">/month</div>
+        <div class="price-desc">For solo dentists getting started with AI-powered scheduling and reminders.</div>
+        <ul class="price-features">
+          <li><span class="feat-yes">✓</span> 1 dentist</li>
+          <li><span class="feat-yes">✓</span> Facebook Messenger + SMS</li>
+          <li><span class="feat-yes">✓</span> Appointment reminders</li>
+          <li><span class="feat-yes">✓</span> Basic recall campaigns</li>
+          <li><span class="feat-yes">✓</span> Unlimited staff accounts</li>
+          <li><span class="feat-no">✗</span> WhatsApp & Email</li>
+          <li><span class="feat-no">✗</span> Analytics dashboard</li>
+        </ul>
+        <button class="price-cta cta-outline">Get started</button>
+      </div>
+
+      <div class="price-card featured reveal reveal-delay-1">
+        <div class="price-badge">Most popular</div>
+        <div class="price-tier">Growth</div>
+        <div class="price-amount">
+          <div class="price-currency">₱</div>
+          <div class="price-num">4,500</div>
+        </div>
+        <div class="price-period" style="margin-bottom:16px;color:rgba(255,255,255,0.4);font-size:14px">/month</div>
+        <div class="price-desc">For growing clinics with multiple dentists and serious retention goals.</div>
+        <ul class="price-features">
+          <li><span class="feat-yes">✓</span> Up to 3 dentists</li>
+          <li><span class="feat-yes">✓</span> Messenger + SMS + WhatsApp</li>
+          <li><span class="feat-yes">✓</span> Full recall engine</li>
+          <li><span class="feat-yes">✓</span> Auto-reschedule on cancellation</li>
+          <li><span class="feat-yes">✓</span> Unlimited staff accounts</li>
+          <li><span class="feat-yes">✓</span> Analytics dashboard</li>
+          <li><span class="feat-no">✗</span> Custom AI tone per dentist</li>
+        </ul>
+        <button class="price-cta cta-fill">Start free trial</button>
+      </div>
+
+      <div class="price-card reveal reveal-delay-2">
+        <div class="price-tier">Pro</div>
+        <div class="price-amount">
+          <div class="price-currency">₱</div>
+          <div class="price-num">7,000</div>
+        </div>
+        <div class="price-period" style="margin-bottom:16px;color:var(--muted);font-size:14px">/month</div>
+        <div class="price-desc">For multi-branch clinics and those who want the full platform and priority support.</div>
+        <ul class="price-features">
+          <li><span class="feat-yes">✓</span> Unlimited dentists</li>
+          <li><span class="feat-yes">✓</span> All channels incl. Voice (beta)</li>
+          <li><span class="feat-yes">✓</span> Advanced analytics</li>
+          <li><span class="feat-yes">✓</span> Custom AI tone per dentist</li>
+          <li><span class="feat-yes">✓</span> Multi-branch support</li>
+          <li><span class="feat-yes">✓</span> Priority WhatsApp support</li>
+          <li><span class="feat-yes">✓</span> NPC compliance docs</li>
+        </ul>
+        <button class="price-cta cta-outline">Contact us</button>
+      </div>
+
+    </div>
+
+    <p class="pricing-note reveal">All plans include NPC-compliant data handling · No setup fees · Cancel anytime · Prices in Philippine Peso</p>
+  </div>
+</section>
+
+<!-- ══ CTA ══════════════════════════════════════════ -->
+<section class="cta-section">
+  <div class="container">
+    <div class="eyebrow-tag" style="color:var(--gold);background:rgba(200,148,58,0.1);border-color:rgba(200,148,58,0.2);margin-bottom:20px;display:inline-flex">Start today</div>
+    <h2 class="section-title reveal" style="max-width:640px">
+      Your next patient is messaging<br>
+      <em>right now. Are you there?</em>
+    </h2>
+    <p class="section-sub reveal reveal-delay-1">
+      Set Narra up in 3 minutes. Run it for 30 days free. If it doesn't book at least 10 appointments you wouldn't have gotten otherwise — we'll refund everything.
+    </p>
+    <div class="cta-actions reveal reveal-delay-2">
+      <button class="btn-hero-primary">Start 30-day free trial →</button>
+      <button class="btn-hero-ghost">Schedule a demo</button>
+    </div>
+    <p class="cta-fine reveal reveal-delay-3">No credit card required · 3-minute setup · Cancel anytime</p>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" width="16" height="16">
+              <path d="M12 2C8 2 5 5 5 8c0 4 3 6 4 10h6c1-4 4-6 4-10 0-3-3-6-7-6z"/>
+              <line x1="9" y1="18" x2="15" y2="18"/>
+              <line x1="10" y1="21" x2="14" y2="21"/>
+            </svg>
+          </div>
+          <div class="footer-logo-text">Narra</div>
+        </div>
+        <p class="footer-desc">The AI revenue retention engine for Philippine clinics. 24/7 booking, recall campaigns, and patient reactivation — all in Taglish.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <ul class="footer-links">
+          <li><a>Features</a></li>
+          <li><a>Pricing</a></li>
+          <li><a>Integrations</a></li>
+          <li><a>Changelog</a></li>
+          <li><a>Roadmap</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a>About</a></li>
+          <li><a>Blog</a></li>
+          <li><a>Careers</a></li>
+          <li><a>Contact</a></li>
+          <li><a>Press</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a>Privacy Policy</a></li>
+          <li><a>Terms of Service</a></li>
+          <li><a>DPA Addendum</a></li>
+          <li><a>NPC Compliance</a></li>
+          <li><a>Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Narra AI Technologies. All rights reserved. Made with 🦷 in Pampanga.</div>
+      <div class="footer-badges">
+        <div class="footer-badge">NPC Compliant</div>
+        <div class="footer-badge">Data Privacy Act 2012</div>
+        <div class="footer-badge">SSL Secured</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Scroll behavior
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Tab switching
+function switchTab(i) {
+  document.querySelectorAll('.how-tab').forEach((t,idx) => t.classList.toggle('active', idx === i));
+  document.querySelectorAll('.how-panel').forEach((p,idx) => p.classList.toggle('active', idx === i));
+}
+
+// Animate bar chart on scroll
+const barObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.mbc-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => bar.style.width = w, 100);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.mini-bar-chart').forEach(el => barObserver.observe(el));
+
+// Smooth anchor scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>

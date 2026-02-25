@@ -1,0 +1,19 @@
+# Dependencies (re-installed inside Docker)
+node_modules
+**/node_modules
+
+# Build outputs (re-built inside Docker)
+**/dist
+
+# Git
+.git
+.gitignore
+
+# Local env files (secrets injected via Railway env vars)
+**/.env
+**/.env.local
+
+# Editor / OS
+.DS_Store
+*.log
+.vscode
